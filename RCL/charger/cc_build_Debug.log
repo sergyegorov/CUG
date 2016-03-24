@@ -1,0 +1,20 @@
+----------------------------  charger.pjt - Debug  ----------------------------
+[main.c] "C:\CCStudio_v3.3\C2000\cgtools\bin\cl2000" -g -fr"D:/work/CUG/V2/charger/Debug" -i"./DSP2802x_headers/include/" -i"./DSP2802x_common/include/" -d"_DEBUG" -d"LARGE_MODEL" -ml -v28 -@"Debug.lkf" "main.c"
+"main.c", line 178: warning: nested comment is not allowed
+"main.c", line 408: warning: variable "time" was declared but never referenced
+"main.c", line 458: warning: variable "dlt_u" was declared but never referenced
+"main.c", line 462: warning: variable "s" was declared but never referenced
+"main.c", line 462: warning: variable "i" was declared but never referenced
+"main.c", line 463: warning: variable "fsto_dlt" was declared but never referenced
+"main.c", line 626: warning: nested comment is not allowed
+"main.c", line 707: warning: nested comment is not allowed
+"main.c", line 760: warning: nested comment is not allowed
+"main.c", line 652: warning: variable "c" was set but never used
+"main.c", line 653: warning: variable "ign_count" was declared but never referenced
+
+[Linking...] "C:\CCStudio_v3.3\C2000\cgtools\bin\cl2000" -@"Debug.lkf"
+<Linking>
+>> warning: entry point other than _c_int00 specified
+
+Build Complete,
+  0 Errors, 12 Warnings, 0 Remarks.

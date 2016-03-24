@@ -1,0 +1,48 @@
+; Code Composer Project File, Version 2.0 (do not modify or remove this line)
+
+[Project Settings]
+ProjectDir="D:\work\CUG\V2\charger\"
+ProjectType=Executable
+CPUFamily=TMS320C28XX
+Tool="Compiler"
+Tool="CustomBuilder"
+Tool="DspBiosBuilder"
+Tool="Linker"
+Config="Debug"
+Config="Release"
+
+[Source Files]
+Source="adc.c"
+Source="DSP2802x_common\source\DSP2802x_CodeStartBranch.asm"
+Source="DSP2802x_GlobalVariableDefs.c"
+Source="InOutSignal.c"
+Source="main.c"
+Source="spi.c"
+Source="SPKey.c"
+Source="cmd_files\DSP2802x_Headers_nonBIOS.cmd"
+Source="cmd_files\F28023.cmd"
+
+["Compiler" Settings: "Debug"]
+Options=-g -fr"$(Proj_dir)\Debug" -i".\DSP2802x_headers\include\" -i".\DSP2802x_common\include\" -d"_DEBUG" -d"LARGE_MODEL" -ml -v28
+
+["Compiler" Settings: "Release"]
+Options=-o3 -fr"$(Proj_dir)\Release" -i".\DSP2802x_headers\include\" -i"DSP2802x_common\include\" -d"LARGE_MODEL" -ml -v28
+
+["Linker" Settings: "Debug"]
+Options=-c -ecode_start -m".\Debug\charger.map" -o".\Debug\charger.out" -stack300 -w -x -i"C:\CCStudio_v3.1\C2000\cgtools\lib" -l"rts2800_ml.lib"
+
+["Linker" Settings: "Release"]
+Options=-c -m".\Release\charger.map" -o".\Release\charger.out" -stack300 -w -x -i"C:\CCStudio_v3.1\C2000\cgtools\lib" -l"rts2800_ml.lib"
+
+["cmd_files\DSP2802x_Headers_nonBIOS.cmd" Settings: "Debug"]
+LinkOrder=1
+
+["cmd_files\DSP2802x_Headers_nonBIOS.cmd" Settings: "Release"]
+LinkOrder=1
+
+["cmd_files\F28023.cmd" Settings: "Debug"]
+LinkOrder=1
+
+["cmd_files\F28023.cmd" Settings: "Release"]
+LinkOrder=1
+

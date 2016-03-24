@@ -1,0 +1,23 @@
+---------------------------  charger.pjt - Release  ---------------------------
+[adc.c] "C:\CCStudio_v3.3\C2000\cgtools\bin\cl2000" -o3 -fr"D:/work/CUG/V2/charger/Release" -i"./DSP2802x_headers/include/" -i"DSP2802x_common/include/" -d"LARGE_MODEL" -ml -v28 -@"Release.lkf" "adc.c"
+
+[DSP2802x_CodeStartBranch.asm] "C:\CCStudio_v3.3\C2000\cgtools\bin\cl2000" -o3 -fr"D:/work/CUG/V2/charger/Release" -i"./DSP2802x_headers/include/" -i"DSP2802x_common/include/" -d"LARGE_MODEL" -ml -v28 -@"../../Release.lkf" "DSP2802x_CodeStartBranch.asm"
+
+[DSP2802x_GlobalVariableDefs.c] "C:\CCStudio_v3.3\C2000\cgtools\bin\cl2000" -o3 -fr"D:/work/CUG/V2/charger/Release" -i"./DSP2802x_headers/include/" -i"DSP2802x_common/include/" -d"LARGE_MODEL" -ml -v28 -@"Release.lkf" "DSP2802x_GlobalVariableDefs.c"
+
+[InOutSignal.c] "C:\CCStudio_v3.3\C2000\cgtools\bin\cl2000" -o3 -fr"D:/work/CUG/V2/charger/Release" -i"./DSP2802x_headers/include/" -i"DSP2802x_common/include/" -d"LARGE_MODEL" -ml -v28 -@"Release.lkf" "InOutSignal.c"
+
+[main.c] "C:\CCStudio_v3.3\C2000\cgtools\bin\cl2000" -o3 -fr"D:/work/CUG/V2/charger/Release" -i"./DSP2802x_headers/include/" -i"DSP2802x_common/include/" -d"LARGE_MODEL" -ml -v28 -@"Release.lkf" "main.c"
+"main.c", line 67: warning: variable "i" was declared but never referenced
+"main.c", line 67: warning: variable "j" was declared but never referenced
+"main.c", line 398: warning: statement is unreachable
+"main.c", line 406: warning: variable "temp" was set but never used
+
+[SPKey.c] "C:\CCStudio_v3.3\C2000\cgtools\bin\cl2000" -o3 -fr"D:/work/CUG/V2/charger/Release" -i"./DSP2802x_headers/include/" -i"DSP2802x_common/include/" -d"LARGE_MODEL" -ml -v28 -@"Release.lkf" "SPKey.c"
+
+[Linking...] "C:\CCStudio_v3.3\C2000\cgtools\bin\cl2000" -@"Release.lkf"
+<Linking>
+>> warning: load address of uninitialized section ramfuncs ignored
+
+Build Complete,
+  0 Errors, 5 Warnings, 0 Remarks.

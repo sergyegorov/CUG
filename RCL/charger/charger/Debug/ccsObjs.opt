@@ -1,0 +1,1 @@
+"D:/work/CUG/V2/charger/DSP2802x_headers/cmd/DSP2802x_Headers_nonBIOS.cmd" "D:/work/CUG/V2/charger/Debug/main.obj" "D:/work/CUG/V2/charger/Debug/adc.obj" "D:/work/CUG/V2/charger/Debug/SPKey.obj" "D:/work/CUG/V2/charger/Debug/DSP2802x_GlobalVariableDefs.obj" -l"rts2800_ml.lib" "D:/work/CUG/V2/charger/DSP2802x_common/cmd/F28023.cmd" 
