@@ -1,17 +1,20 @@
-#include <stm32f4xx_gpio.h>
-#include <stm32f4xx_rcc.h>
-#include "stm32f4xx_adc.h"
+#include <stm32f10x_gpio.h>
+#include <stm32f10x_rcc.h>
+#include "stm32f10x_adc.h"
 
 GPIO_InitTypeDef  GPIO_InitStructure;
 
-int Delay(__IO uint32_t nCount);
+//int Delay(__IO uint32_t nCount);
 
 int ConvertedValue = 0; //Converted value readed from ADC
 
 #define TIME_STEP 1000000
+#define ADC_UIN 	ADC_Channel_1
+#define ADC_I   	ADC_Channel_2
+#define ADC_UOUT 	ADC_Channel_3
 
 void analogStart(){
-	int *val1 = &(ADC1->CR2);// |= (uint32_t)ADC_CR2_SWSTART;//ADC_SoftwareStartConv(ADC1);//Start the conversion
+	/*int *val1 = &(ADC1->CR2);// |= (uint32_t)ADC_CR2_SWSTART;//ADC_SoftwareStartConv(ADC1);//Start the conversion
 	int *val2 = &(ADC2->CR2);
 	int *val3 = &(ADC3->CR2);
 	int src1 = ADC1->CR2 | (uint32_t)ADC_CR2_SWSTART;
@@ -19,11 +22,91 @@ void analogStart(){
 	int src3 = ADC3->CR2 | (uint32_t)ADC_CR2_SWSTART;
 	*val1 = src1;
 	*val2 = src2;
-	*val3 = src3;
+	*val3 = src3;*/
+}
+
+void ADCInitLow(ADC_TypeDef* adcx){
+		//this->ADCx = adcx;
+		ADC_InitTypeDef  ADC_InitStructure;
+		/* PCLK2 is the APB2 clock */
+		/* ADCCLK = PCLK2/6 = 72/6 = 12MHz*/
+		RCC_ADCCLKConfig(RCC_PCLK2_Div6);
+
+		/* Put everything back to power-on defaults */
+		ADC_DeInit(adcx);
+
+		/* ADCx Configuration ------------------------------------------------------*/
+		/* ADCx and ADC2 operate independently */
+		ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
+		/* Disable the scan conversion so we do one at a time */
+		ADC_InitStructure.ADC_ScanConvMode = DISABLE;
+		/* Don't do contimuous conversions - do them on demand */
+		ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
+		/* Start conversin by software, not an external trigger */
+		ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;
+		/* Conversions are 12 bit - put them in the lower 12 bits of the result */
+		ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+		/* Say how many channels would be used by the sequencer */
+		ADC_InitStructure.ADC_NbrOfChannel = 1;
+
+		  /* Now do the setup */
+		ADC_Init(adcx, &ADC_InitStructure);
+		  /* Enable ADCx */
+		ADC_Cmd(adcx, ENABLE);
+
+		  /* Enable ADCx reset calibaration register */
+		ADC_ResetCalibration(adcx);
+		  /* Check the end of ADCx reset calibration register */
+		while(ADC_GetResetCalibrationStatus(adcx));
+		  /* Start ADCx calibaration */
+		ADC_StartCalibration(adcx);
+		  /* Check the end of ADCx calibration */
+		while(ADC_GetCalibrationStatus(adcx));
+	}
+
+u16 readADCch(ADC_TypeDef* ADCx,u8 channel)
+	{
+		ADC_RegularChannelConfig(ADCx, channel, 1, ADC_SampleTime_1Cycles5);
+		// Start the conversion
+		ADC_SoftwareStartConvCmd(ADCx, ENABLE);
+		// Wait until conversion completion
+		while(ADC_GetFlagStatus(ADCx, ADC_FLAG_EOC) == RESET);
+		// Get the conversion value
+		return ADC_GetConversionValue(ADCx);
+	}
+
+#define CR2_EXTTRIG_SWSTART_Set     ((uint32_t)0x00500000)
+inline u16 readADC(ADC_TypeDef* ADCx)
+	{
+		// Start the conversion
+		ADCx->CR2 |= CR2_EXTTRIG_SWSTART_Set;////ADC_SoftwareStartConvCmd(ADCx, ENABLE);
+		// Wait until conversion completion
+		//while((ADCx->SR & ADC_FLAG) == (uint8_t)RESET)//
+			while(ADC_GetFlagStatus(ADCx, ADC_FLAG_EOC) == RESET);
+		// Get the conversion value
+		return ADC_GetConversionValue(ADCx);
+	}
+
+int getOutputU(){
+	return readADC(ADC2);
+}
+
+int getInputU(){
+	return readADC(ADC1);
+}
+
+int getI(){
+	return readADC(ADC3);
 }
 
 void initADC(){
- ADC_InitTypeDef ADC_init_structure; //Structure for adc confguration
+	ADCInitLow(ADC1);
+	readADCch(ADC1,ADC_UIN);
+	ADCInitLow(ADC2);
+	readADCch(ADC2,ADC_UOUT);
+	ADCInitLow(ADC3);
+	readADCch(ADC3,ADC_I);
+ /*ADC_InitTypeDef ADC_init_structure; //Structure for adc confguration
  GPIO_InitTypeDef GPIO_initStructre; //Structure for analog input pin
  //Clock configuration
  //RCC_ADCCLKConfig(RCC_PCLK2_Div6);
@@ -66,13 +149,12 @@ void initADC(){
  ADC_RegularChannelConfig(ADC1,ADC_Channel_10,1,ADC_SampleTime_3Cycles);//ADC_RegularChannelConfig(ADC1,ADC_Channel_10,1,ADC_SampleTime_3Cycles);
  ADC_RegularChannelConfig(ADC2,ADC_Channel_11,1,ADC_SampleTime_3Cycles);//ADC_RegularChannelConfig(ADC2,ADC_Channel_11,1,ADC_SampleTime_3Cycles);
  ADC_RegularChannelConfig(ADC3,ADC_Channel_12,1,ADC_SampleTime_3Cycles);//ADC_RegularChannelConfig(ADC3,ADC_Channel_12,1,ADC_SampleTime_3Cycles);
-
- analogStart();
+ analogStart();//*/
 }
 
 int ADCInput,ADCCur,ADCOut;
 void updateADC(){
-	//int ret = 0;
+	/*/int ret = 0;
 	while(!(ADC1->SR & ADC_FLAG_EOC));
 	while(!(ADC2->SR & ADC_FLAG_EOC));
 	while(!(ADC3->SR & ADC_FLAG_EOC));
@@ -85,5 +167,8 @@ void updateADC(){
 	ADC2->SR = 0;
 	ADC3->SR = 0;
 
-	//analogStart();
+	//analogStart();*/
+	ADCInput = getInputU();
+	ADCOut = getOutputU();
+	ADCCur = getI();
 }

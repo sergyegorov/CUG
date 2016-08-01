@@ -1,12 +1,12 @@
 #include "time.h"
-#include "stm32f4xx_tim.h"
-#include "stm32f4xx_rcc.h"
+#include "stm32f10x_tim.h"
+#include "stm32f10x_rcc.h"
 
 void initHRTimer(){
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
 
 	TIM_TimeBaseInitTypeDef timerInitStructure;
-	timerInitStructure.TIM_Prescaler = 1;
+	timerInitStructure.TIM_Prescaler = 66;
 	timerInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
 	timerInitStructure.TIM_Period = 0xFFFFFF;
 	timerInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
@@ -21,4 +21,22 @@ void resetHRTimer(){
 
 uint32_t getHRTimerValue(){
 	return TIM_GetCounter(TIM2);
+}
+
+int delay(uint32_t val){
+	uint16_t from = getHRTimerValue(),to;
+	int64_t step = HRES_TICKS_IN_SEC;
+	step *= val;
+	step /=  1000000;
+	if(step == 0)
+		step = 1;
+	while(step > 0){
+		to = getHRTimerValue();
+		if(to >= from)
+			step -= (to - from);
+		else
+			step -= ((0xFFFF-from) + to + 1);
+		from = to;
+	}
+	return from;
 }

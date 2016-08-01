@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <breakpoints>
 <breakpoint enabled="true" persistant="true" registered="true">
-<resource path="/CUG_STM/run.c" type="1"/>
-<marker lineNumber="263" type="org.eclipse.cdt.debug.core.cLineBreakpointMarker">
+<resource path="/CUG_STM/common.c" type="1"/>
+<marker lineNumber="25" type="org.eclipse.cdt.debug.core.cLineBreakpointMarker">
 <attrib name="enabled" value="true"/>
 <attrib name="org.eclipse.cdt.debug.core.condition" value=""/>
 <attrib name="org.eclipse.debug.core.id" value="org.eclipse.cdt.debug.core"/>
@@ -12,10 +12,70 @@
 <attrib name="persistant" value="true"/>
 <attrib name="org.eclipse.cdt.debug.core.breakpointType" value="0"/>
 <attrib name="workingset_id" value="org.eclipse.debug.ui.breakpointWorkingSet"/>
-<attrib name="message" value="Line breakpoint: run.c [line: 272]"/>
+<attrib name="message" value="Line breakpoint: common.c [line: 25]"/>
 <attrib name="registered" value="true"/>
-<attrib name="path" value="/CUG_STM/run.c"/>
-<attrib name="org.eclipse.cdt.debug.core.sourceHandle" value="D:\Work\CUG\CUG_STM\run.c"/>
+<attrib name="path" value="/CUG_STM/common.c"/>
+<attrib name="org.eclipse.cdt.debug.core.sourceHandle" value="D:\NetDisks\G\Work\CUG\Arutiun\CUG_STM\common.c"/>
+<attrib name="org.eclipse.debug.core.enabled" value="true"/>
+<attrib name="org.eclipse.cdt.debug.core.ignoreCount" value="0"/>
+</marker>
+</breakpoint>
+<breakpoint enabled="true" persistant="true" registered="true">
+<resource path="/CUG_STM/common.c" type="1"/>
+<marker lineNumber="20" type="org.eclipse.cdt.debug.core.cLineBreakpointMarker">
+<attrib name="enabled" value="true"/>
+<attrib name="org.eclipse.cdt.debug.core.condition" value=""/>
+<attrib name="org.eclipse.debug.core.id" value="org.eclipse.cdt.debug.core"/>
+<attrib name="workingset_name" value=""/>
+<attrib name="org.eclipse.cdt.debug.core.installCount" value="0"/>
+<attrib name="type" value="org.eclipse.cdt.debug.core.cLineBreakpointMarker"/>
+<attrib name="persistant" value="true"/>
+<attrib name="org.eclipse.cdt.debug.core.breakpointType" value="0"/>
+<attrib name="workingset_id" value="org.eclipse.debug.ui.breakpointWorkingSet"/>
+<attrib name="message" value="Line breakpoint: common.c [line: 20]"/>
+<attrib name="registered" value="true"/>
+<attrib name="path" value="/CUG_STM/common.c"/>
+<attrib name="org.eclipse.cdt.debug.core.sourceHandle" value="D:\NetDisks\G\Work\CUG\Arutiun\CUG_STM\common.c"/>
+<attrib name="org.eclipse.debug.core.enabled" value="true"/>
+<attrib name="org.eclipse.cdt.debug.core.ignoreCount" value="0"/>
+</marker>
+</breakpoint>
+<breakpoint enabled="true" persistant="true" registered="true">
+<resource path="/CUG_STM/main.c" type="1"/>
+<marker lineNumber="1026" type="org.eclipse.cdt.debug.core.cLineBreakpointMarker">
+<attrib name="enabled" value="true"/>
+<attrib name="org.eclipse.cdt.debug.core.condition" value=""/>
+<attrib name="org.eclipse.debug.core.id" value="org.eclipse.cdt.debug.core"/>
+<attrib name="workingset_name" value=""/>
+<attrib name="org.eclipse.cdt.debug.core.installCount" value="0"/>
+<attrib name="type" value="org.eclipse.cdt.debug.core.cLineBreakpointMarker"/>
+<attrib name="persistant" value="true"/>
+<attrib name="org.eclipse.cdt.debug.core.breakpointType" value="0"/>
+<attrib name="workingset_id" value="org.eclipse.debug.ui.breakpointWorkingSet"/>
+<attrib name="message" value="Line breakpoint: main.c [line: 1020]"/>
+<attrib name="registered" value="true"/>
+<attrib name="path" value="/CUG_STM/main.c"/>
+<attrib name="org.eclipse.cdt.debug.core.sourceHandle" value="D:\NetDisks\G\Work\CUG\Slaviansk\CUG_STM\main.c"/>
+<attrib name="org.eclipse.debug.core.enabled" value="true"/>
+<attrib name="org.eclipse.cdt.debug.core.ignoreCount" value="0"/>
+</marker>
+</breakpoint>
+<breakpoint enabled="true" persistant="true" registered="true">
+<resource path="/CUG_STM/rel.c" type="1"/>
+<marker lineNumber="75" type="org.eclipse.cdt.debug.core.cLineBreakpointMarker">
+<attrib name="enabled" value="true"/>
+<attrib name="org.eclipse.cdt.debug.core.condition" value=""/>
+<attrib name="org.eclipse.debug.core.id" value="org.eclipse.cdt.debug.core"/>
+<attrib name="workingset_name" value=""/>
+<attrib name="org.eclipse.cdt.debug.core.installCount" value="0"/>
+<attrib name="type" value="org.eclipse.cdt.debug.core.cLineBreakpointMarker"/>
+<attrib name="persistant" value="true"/>
+<attrib name="org.eclipse.cdt.debug.core.breakpointType" value="0"/>
+<attrib name="workingset_id" value="org.eclipse.debug.ui.breakpointWorkingSet"/>
+<attrib name="message" value="Line breakpoint: rel.c [line: 74]"/>
+<attrib name="registered" value="true"/>
+<attrib name="path" value="/CUG_STM/rel.c"/>
+<attrib name="org.eclipse.cdt.debug.core.sourceHandle" value="D:\NetDisks\G\Work\CUG\Slaviansk\CUG_STM\rel.c"/>
 <attrib name="org.eclipse.debug.core.enabled" value="true"/>
 <attrib name="org.eclipse.cdt.debug.core.ignoreCount" value="0"/>
 </marker>

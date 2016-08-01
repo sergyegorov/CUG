@@ -1,0 +1,256 @@
+
+IgnGenNew.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000208  00000000  00000000  00000074  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .data         00000000  00800060  00000208  0000027c  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .stab         000006b4  00000000  00000000  0000027c  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  3 .stabstr      00000085  00000000  00000000  00000930  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  4 .debug_aranges 00000080  00000000  00000000  000009b8  2**3
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_info   000003f4  00000000  00000000  00000a38  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_abbrev 000000b8  00000000  00000000  00000e2c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_line   000002d4  00000000  00000000  00000ee4  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_frame  00000024  00000000  00000000  000011b8  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_str    0000008e  00000000  00000000  000011dc  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_loc    000000b8  00000000  00000000  0000126a  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_ranges 00000018  00000000  00000000  00001322  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	09 c0       	rjmp	.+18     	; 0x14 <__ctors_end>
+   2:	21 c0       	rjmp	.+66     	; 0x46 <__bad_interrupt>
+   4:	20 c0       	rjmp	.+64     	; 0x46 <__bad_interrupt>
+   6:	1f c0       	rjmp	.+62     	; 0x46 <__bad_interrupt>
+   8:	1e c0       	rjmp	.+60     	; 0x46 <__bad_interrupt>
+   a:	1d c0       	rjmp	.+58     	; 0x46 <__bad_interrupt>
+   c:	1c c0       	rjmp	.+56     	; 0x46 <__bad_interrupt>
+   e:	1b c0       	rjmp	.+54     	; 0x46 <__bad_interrupt>
+  10:	1a c0       	rjmp	.+52     	; 0x46 <__bad_interrupt>
+  12:	19 c0       	rjmp	.+50     	; 0x46 <__bad_interrupt>
+
+00000014 <__ctors_end>:
+  14:	11 24       	eor	r1, r1
+  16:	1f be       	out	0x3f, r1	; 63
+  18:	cf e9       	ldi	r28, 0x9F	; 159
+  1a:	cd bf       	out	0x3d, r28	; 61
+
+0000001c <__do_copy_data>:
+  1c:	10 e0       	ldi	r17, 0x00	; 0
+  1e:	a0 e6       	ldi	r26, 0x60	; 96
+  20:	b0 e0       	ldi	r27, 0x00	; 0
+  22:	e8 e0       	ldi	r30, 0x08	; 8
+  24:	f2 e0       	ldi	r31, 0x02	; 2
+  26:	02 c0       	rjmp	.+4      	; 0x2c <__do_copy_data+0x10>
+  28:	05 90       	lpm	r0, Z+
+  2a:	0d 92       	st	X+, r0
+  2c:	a0 36       	cpi	r26, 0x60	; 96
+  2e:	b1 07       	cpc	r27, r17
+  30:	d9 f7       	brne	.-10     	; 0x28 <__do_copy_data+0xc>
+
+00000032 <__do_clear_bss>:
+  32:	10 e0       	ldi	r17, 0x00	; 0
+  34:	a0 e6       	ldi	r26, 0x60	; 96
+  36:	b0 e0       	ldi	r27, 0x00	; 0
+  38:	01 c0       	rjmp	.+2      	; 0x3c <.do_clear_bss_start>
+
+0000003a <.do_clear_bss_loop>:
+  3a:	1d 92       	st	X+, r1
+
+0000003c <.do_clear_bss_start>:
+  3c:	a0 36       	cpi	r26, 0x60	; 96
+  3e:	b1 07       	cpc	r27, r17
+  40:	e1 f7       	brne	.-8      	; 0x3a <.do_clear_bss_loop>
+  42:	02 d0       	rcall	.+4      	; 0x48 <main>
+  44:	df c0       	rjmp	.+446    	; 0x204 <_exit>
+
+00000046 <__bad_interrupt>:
+  46:	dc cf       	rjmp	.-72     	; 0x0 <__vectors>
+
+00000048 <main>:
+
+//#define NON_STOP
+
+int main(void)
+{
+	PORTB = CHARGE_OFF | DISCHARGE_OFF | LED_OFF;
+  48:	18 ba       	out	0x18, r1	; 24
+	
+	DDRB = DISCHARGE_PIN | CHARGE_PIN | LED_PIN;
+  4a:	85 e1       	ldi	r24, 0x15	; 21
+  4c:	87 bb       	out	0x17, r24	; 23
+	OSCCAL = 127;
+  4e:	8f e7       	ldi	r24, 0x7F	; 127
+  50:	81 bf       	out	0x31, r24	; 49
+	CLKPR = 0b10000000;
+  52:	80 e8       	ldi	r24, 0x80	; 128
+  54:	86 bd       	out	0x26, r24	; 38
+	CLKPR = 0;
+  56:	16 bc       	out	0x26, r1	; 38
+		#ifndef NON_STOP
+		if((PINB & EN_PIN) == 0)
+		#endif
+		{
+			// turne off charger
+			PORTB = CHARGE_OFF | DISCHARGE_OFF | LED_OFF;
+  58:	6a e0       	ldi	r22, 0x0A	; 10
+  5a:	70 e0       	ldi	r23, 0x00	; 0
+			delay_us(10);
+			
+			// discharge
+			PORTB = DISCHARGE_ON | CHARGE_OFF | LED_ON;
+  5c:	11 e1       	ldi	r17, 0x11	; 17
+  5e:	e4 e1       	ldi	r30, 0x14	; 20
+  60:	f0 e0       	ldi	r31, 0x00	; 0
+			delay_us(20);
+			PORTB = CHARGE_OFF | DISCHARGE_OFF | LED_ON;
+  62:	20 e1       	ldi	r18, 0x10	; 16
+  64:	ae ee       	ldi	r26, 0xEE	; 238
+  66:	b2 e0       	ldi	r27, 0x02	; 2
+			delay_us(750);
+			
+			// delicate charge start
+			PORTB = CHARGE_ON | LED_ON | DISCHARGE_OFF;
+  68:	34 e1       	ldi	r19, 0x14	; 20
+  6a:	45 e0       	ldi	r20, 0x05	; 5
+  6c:	50 e0       	ldi	r21, 0x00	; 0
+			delay_us(5);
+			PORTB = CHARGE_OFF | LED_ON | DISCHARGE_OFF;
+			delay_us(5);
+			
+			PORTB = CHARGE_ON | LED_ON | DISCHARGE_OFF;
+  6e:	ce e1       	ldi	r28, 0x1E	; 30
+  70:	d0 e0       	ldi	r29, 0x00	; 0
+			delay_us(30);
+			//unsigned char port = CHARGE_ON | LED_OFF | DISCHARGE_OFF;
+			for(char i = 0;i<100;i++){
+				if((OVERCUR_PIN & PINB) == 0){
+  72:	04 e6       	ldi	r16, 0x64	; 100
+	PORTB = CHARGE_OFF;//*/
+	
+    while(1)
+    {
+		#ifndef NON_STOP
+		if((PINB & EN_PIN) == 0)
+  74:	b3 99       	sbic	0x16, 3	; 22
+  76:	fe cf       	rjmp	.-4      	; 0x74 <main+0x2c>
+		#endif
+		{
+			// turne off charger
+			PORTB = CHARGE_OFF | DISCHARGE_OFF | LED_OFF;
+  78:	18 ba       	out	0x18, r1	; 24
+  7a:	cb 01       	movw	r24, r22
+	...
+			delay_us(10);
+  a8:	01 97       	sbiw	r24, 0x01	; 1
+  aa:	41 f7       	brne	.-48     	; 0x7c <main+0x34>
+			
+			// discharge
+			PORTB = DISCHARGE_ON | CHARGE_OFF | LED_ON;
+  ac:	18 bb       	out	0x18, r17	; 24
+  ae:	cf 01       	movw	r24, r30
+	...
+			delay_us(20);
+  dc:	01 97       	sbiw	r24, 0x01	; 1
+  de:	41 f7       	brne	.-48     	; 0xb0 <__stack+0x11>
+			PORTB = CHARGE_OFF | DISCHARGE_OFF | LED_ON;
+  e0:	28 bb       	out	0x18, r18	; 24
+  e2:	cd 01       	movw	r24, r26
+	...
+			delay_us(750);
+ 110:	01 97       	sbiw	r24, 0x01	; 1
+ 112:	41 f7       	brne	.-48     	; 0xe4 <__stack+0x45>
+			
+			// delicate charge start
+			PORTB = CHARGE_ON | LED_ON | DISCHARGE_OFF;
+ 114:	38 bb       	out	0x18, r19	; 24
+ 116:	ca 01       	movw	r24, r20
+	...
+			delay_us(5);
+ 144:	01 97       	sbiw	r24, 0x01	; 1
+ 146:	41 f7       	brne	.-48     	; 0x118 <__stack+0x79>
+			PORTB = CHARGE_OFF | LED_ON | DISCHARGE_OFF;
+ 148:	28 bb       	out	0x18, r18	; 24
+ 14a:	ca 01       	movw	r24, r20
+	...
+			delay_us(5);
+ 178:	01 97       	sbiw	r24, 0x01	; 1
+ 17a:	41 f7       	brne	.-48     	; 0x14c <__stack+0xad>
+			
+			PORTB = CHARGE_ON | LED_ON | DISCHARGE_OFF;
+ 17c:	38 bb       	out	0x18, r19	; 24
+ 17e:	ce 01       	movw	r24, r28
+	...
+			delay_us(30);
+ 1ac:	01 97       	sbiw	r24, 0x01	; 1
+ 1ae:	41 f7       	brne	.-48     	; 0x180 <__stack+0xe1>
+			//unsigned char port = CHARGE_ON | LED_OFF | DISCHARGE_OFF;
+			for(char i = 0;i<100;i++){
+				if((OVERCUR_PIN & PINB) == 0){
+ 1b0:	86 b3       	in	r24, 0x16	; 22
+ 1b2:	81 ff       	sbrs	r24, 1
+ 1b4:	1e c0       	rjmp	.+60     	; 0x1f2 <__stack+0x153>
+ 1b6:	80 2f       	mov	r24, r16
+ 1b8:	03 c0       	rjmp	.+6      	; 0x1c0 <__stack+0x121>
+ 1ba:	96 b3       	in	r25, 0x16	; 22
+ 1bc:	91 ff       	sbrs	r25, 1
+ 1be:	19 c0       	rjmp	.+50     	; 0x1f2 <__stack+0x153>
+	...
+					PORTB = CHARGE_OFF | LED_ON | DISCHARGE_OFF;
+					break;
+				}
+				delay_us(1);
+ 1ec:	81 50       	subi	r24, 0x01	; 1
+			delay_us(5);
+			
+			PORTB = CHARGE_ON | LED_ON | DISCHARGE_OFF;
+			delay_us(30);
+			//unsigned char port = CHARGE_ON | LED_OFF | DISCHARGE_OFF;
+			for(char i = 0;i<100;i++){
+ 1ee:	29 f7       	brne	.-54     	; 0x1ba <__stack+0x11b>
+ 1f0:	01 c0       	rjmp	.+2      	; 0x1f4 <__stack+0x155>
+				if((OVERCUR_PIN & PINB) == 0){
+					PORTB = CHARGE_OFF | LED_ON | DISCHARGE_OFF;
+ 1f2:	28 bb       	out	0x18, r18	; 24
+					break;
+				}
+				delay_us(1);
+			}
+			PORTB = CHARGE_OFF | LED_OFF | DISCHARGE_OFF;
+ 1f4:	18 ba       	out	0x18, r1	; 24
+			#ifndef NON_STOP
+			while((PINB & EN_PIN) == 0){
+ 1f6:	03 c0       	rjmp	.+6      	; 0x1fe <__stack+0x15f>
+				if((OVERCUR_PIN&PINB) == 0){
+ 1f8:	86 b3       	in	r24, 0x16	; 22
+ 1fa:	81 ff       	sbrs	r24, 1
+					PORTB = CHARGE_OFF | LED_OFF | DISCHARGE_OFF;
+ 1fc:	18 ba       	out	0x18, r1	; 24
+				}
+				delay_us(1);
+			}
+			PORTB = CHARGE_OFF | LED_OFF | DISCHARGE_OFF;
+			#ifndef NON_STOP
+			while((PINB & EN_PIN) == 0){
+ 1fe:	b3 99       	sbic	0x16, 3	; 22
+ 200:	39 cf       	rjmp	.-398    	; 0x74 <main+0x2c>
+ 202:	fa cf       	rjmp	.-12     	; 0x1f8 <__stack+0x159>
+
+00000204 <_exit>:
+ 204:	f8 94       	cli
+
+00000206 <__stop_program>:
+ 206:	ff cf       	rjmp	.-2      	; 0x206 <__stop_program>

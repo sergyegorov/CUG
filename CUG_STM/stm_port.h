@@ -1,10 +1,10 @@
 #ifndef STM_PORT_H
 #define STM_PORT_H
 
-#include "stm32f4xx.h"
-#include "stm32f4xx_gpio.h"
-#include "stm32f4xx_rcc.h"
-#include "stm32f4xx_adc.h"
+#include "stm32f10x.h"
+#include "stm32f10x_gpio.h"
+#include "stm32f10x_rcc.h"
+#include "stm32f10x_adc.h"
 
 extern void initOutputPin(GPIO_TypeDef*  port,int pin);
 extern void initInputPin(GPIO_TypeDef*  port,int pin);

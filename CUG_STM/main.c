@@ -2,11 +2,11 @@
  * Старая СТМ и новая силовая.
  * Для АСС
  */
-#include "stm32f4xx.h"
-#include "stm32f4xx_gpio.h"
-#include "stm32f4xx_rcc.h"
-#include "stm32f4xx_rtc.h"
-#include "stm32f4xx_pwr.h"
+#include "stm32f10x.h"
+#include "stm32f10x_gpio.h"
+#include "stm32f10x_rcc.h"
+#include "stm32f10x_rtc.h"
+#include "stm32f10x_pwr.h"
 
 #include "math.h"
 
@@ -16,6 +16,15 @@
 #include "adc.h"
 #include "spi.h"
 #include "stm_port.h"
+#include "rel.h"
+
+#define ARI_MODE
+
+#ifdef AIR_MODE
+#define NO_GAS_CHECK_DEFULT 1
+#else
+#define NO_GAS_CHECK_DEFULT 0
+#endif
 
 #ifndef NULL
 #define NULL 0
@@ -80,7 +89,7 @@ void animation(){
 	animation_print_str("енератор");
 	delay_ms(ANIMATION_DELAY);
 	LCDMoveTo(2,13);
-	animation_print_str("Ver32.1");
+	animation_print_str("Ver32.2");
 	//LCDMoveTo(3,0);
 	//LCDPrintString("                    ");
 
@@ -100,8 +109,8 @@ struct MenuItem{
 	int Function;
 };
 
-#define MenuItemCountConst 16
-#define MenuItemFullCountConst 19
+#define MenuItemCountConst 16+2
+#define MenuItemFullCountConst 19+2
 
 #define FK_NO 				-1
 #define FK_NO_SPARK_CHECK 	0
@@ -110,24 +119,26 @@ struct MenuItem{
 
 int MenuItemCount = MenuItemCountConst;
 const struct MenuItem MItems[] = {
-		{"Привязка","",0,0,-1,-1,0,FK_NO},
-		{"Искра жесткая","",0,0,-1,-1,0,FK_NO},
-		{"Искра мягкая","",0,0,-1,-1,0,FK_NO},
-		{"Дуга 4А","",0,0,-1,-1,0,FK_NO},
-		{"Дуга 10А","",0,0,-1,-1,0,FK_NO},
-		{"Дуга 16А","",0,0,-1,-1,0,FK_NO},
+		{"Стандартные режимы:","",0,0,0,0,FK_NO},
+		{" 1.Привязка","",0,0,-1,-1,0,FK_NO},
+		{" 2.Искра жесткая","",0,0,-1,-1,0,FK_NO},
+		{" 3.Искра мягкая","",0,0,-1,-1,0,FK_NO},
+		{" 4.Дуга 4А","",0,0,-1,-1,0,FK_NO},
+		{" 5.Дуга 10А","",0,0,-1,-1,0,FK_NO},
+		{" 6.Дуга 16А","",0,0,-1,-1,0,FK_NO},
 		{"Произвольный режим","",0,0,0,0,FK_NO},
-		{" I1=","A(125 мкс)",0,CUR_MAX,1,20,20,FK_NO},
-		{" I2=","A(250 мкс)",0,CUR_MAX,1,20,0,FK_NO},
-		{" I3=","A(375 мкс)",0,CUR_MAX,1,20,0,FK_NO},
-		{" I4=","A(500 мкс)",0,CUR_MAX,1,20,0,FK_NO},
+		{"  I1=","A(125 мкс)",0,CUR_MAX,1,20,20,FK_NO},
+		{"  I2=","A(250 мкс)",0,CUR_MAX,1,20,0,FK_NO},
+		{"  I3=","A(375 мкс)",0,CUR_MAX,1,20,0,FK_NO},
+		{"  I4=","A(500 мкс)",0,CUR_MAX,1,20,0,FK_NO},
 		{" F =","Гц",25,600,0,25,100,FK_NO},
-		{"Обдув ","t(сек)",0,200,1,10,40,FK_NO},
-		{"Обжиг ","сек",0,600,1,10,0,FK_NO},
-		{" I=","A(500 мкс)",0,CUR_MAX,1,20,CUR_MAX,FK_NO},
+		{" T =","us",25,600,0,25,600,FK_NO},
+		{" Обдув ","t(сек)",0,200,1,10,40,FK_NO},
+		{" Обжиг ","сек",0,600,1,10,0,FK_NO},
+		{"  I=","A(500 мкс)",0,CUR_MAX,1,20,CUR_MAX,FK_NO},
 		{"Готов к работе",(char*)-1,-1,-1,-1,-1,-1,FK_NO},
 		{"No Spark Check ","",0,1,0,1,0,FK_NO_SPARK_CHECK},
-		{"No GAS Check ","",0,1,0,1,0,FK_NO_GAS_CHECK},
+		{"No GAS Check ","",0,1,0,1,NO_GAS_CHECK_DEFULT,FK_NO_GAS_CHECK},
 		{"No PROT Check ","",0,1,0,1,0,FK_NO_PROT_CHECK}
 		//{"Связь с компютером","",0,0,-1,0}
 };
@@ -149,12 +160,13 @@ void write_memory(int addr,u32 val){
 #define MenuItemSelector 	1
 #define MenuItemValueBase   2
 
-#define MenuItemMode 			6
+#define MenuItemMode 			7 //6
 #define MenuItemIBase			MenuItemMode+1
 #define MenuItemF 				MenuItemMode+5
-#define MenuItemPreBlow 		MenuItemMode+6
-#define MenuItemPresparkTime 	MenuItemMode+7
-#define MenuItemPresparkI		MenuItemMode+8
+#define MenuItemT 				MenuItemMode+6
+#define MenuItemPreBlow 		MenuItemMode+7 //6
+#define MenuItemPresparkTime 	MenuItemMode+8 //7
+#define MenuItemPresparkI		MenuItemMode+9 //8
 
 char shouldSetup(const char *msg){
 	char ret;
@@ -168,19 +180,7 @@ char shouldSetup(const char *msg){
 	LCDPrintString("[желтая - да ]");
 	LCDMoveTo(3,6);
 	LCDPrintString("[другие - нет]");
-	int key = GetKeyPressed();
-
-	do{
-		delay_ms(50);
-		key = GetKeyPressed();
-	}while(key != 0);
-
-	delay_ms(100);
-
-	do{
-		delay_ms(50);
-		key = GetKeyPressed();
-	}while(key == 0);
+	int key = waitForKeyPress();
 
 	LCDClear();
 	LCDMoveTo(1,4);
@@ -193,13 +193,11 @@ char shouldSetup(const char *msg){
 	}
 	delay_ms(1500);
 
-	while(GetKeyPressed() != 0)
-		delay_ms(50);
-
 	return ret;
 }
 
 void setupPredefinedMode(int mode){
+	mode --;
 	switch(mode){
 	case 0: //Привязка
 		if(shouldSetup("Привязка") == 0)
@@ -209,6 +207,7 @@ void setupPredefinedMode(int mode){
 		write_memory(MenuItemValueBase+MenuItemIBase+2,0);
 		write_memory(MenuItemValueBase+MenuItemIBase+3,0);
 		write_memory(MenuItemValueBase+MenuItemF,200);
+		write_memory(MenuItemValueBase+MenuItemT,600);
 		write_memory(MenuItemValueBase+MenuItemPreBlow,40);
 		write_memory(MenuItemValueBase+MenuItemPresparkTime,0);
 		write_memory(MenuItemValueBase+MenuItemPresparkI,CUR_MAX);
@@ -217,10 +216,11 @@ void setupPredefinedMode(int mode){
 		if(shouldSetup("Искра жесткая") == 0)
 			return;
 		write_memory(MenuItemValueBase+MenuItemIBase,CUR_MAX);
-		write_memory(MenuItemValueBase+MenuItemIBase+1,CUR_MAX);
-		write_memory(MenuItemValueBase+MenuItemIBase+2,0);
-		write_memory(MenuItemValueBase+MenuItemIBase+3,0);
-		write_memory(MenuItemValueBase+MenuItemF,MAX_F);
+		write_memory(MenuItemValueBase+MenuItemIBase+1,40);
+		write_memory(MenuItemValueBase+MenuItemIBase+2,40);
+		write_memory(MenuItemValueBase+MenuItemIBase+3,40);
+		write_memory(MenuItemValueBase+MenuItemF,400);
+		write_memory(MenuItemValueBase+MenuItemT,100);
 		write_memory(MenuItemValueBase+MenuItemPreBlow,40);
 		write_memory(MenuItemValueBase+MenuItemPresparkTime,0);
 		write_memory(MenuItemValueBase+MenuItemPresparkI,CUR_MAX);
@@ -228,11 +228,12 @@ void setupPredefinedMode(int mode){
 	case 2: //Искра мягкая
 		if(shouldSetup("Искра мягкая") == 0)
 			return;
-		write_memory(MenuItemValueBase+MenuItemIBase,CUR_MAX);
+		write_memory(MenuItemValueBase+MenuItemIBase,CUR_MAX/2);
 		write_memory(MenuItemValueBase+MenuItemIBase+1,160);
-		write_memory(MenuItemValueBase+MenuItemIBase+2,100);
-		write_memory(MenuItemValueBase+MenuItemIBase+3,0);
+		write_memory(MenuItemValueBase+MenuItemIBase+2,40);
+		write_memory(MenuItemValueBase+MenuItemIBase+3,40);
 		write_memory(MenuItemValueBase+MenuItemF,300);
+		write_memory(MenuItemValueBase+MenuItemT,250);
 		write_memory(MenuItemValueBase+MenuItemPreBlow,40);
 		write_memory(MenuItemValueBase+MenuItemPresparkTime,0);
 		write_memory(MenuItemValueBase+MenuItemPresparkI,CUR_MAX);
@@ -244,7 +245,8 @@ void setupPredefinedMode(int mode){
 		write_memory(MenuItemValueBase+MenuItemIBase+1,40);
 		write_memory(MenuItemValueBase+MenuItemIBase+2,40);
 		write_memory(MenuItemValueBase+MenuItemIBase+3,40);
-		write_memory(MenuItemValueBase+MenuItemF,MAX_F);
+		write_memory(MenuItemValueBase+MenuItemF,400);
+		write_memory(MenuItemValueBase+MenuItemT,600);
 		write_memory(MenuItemValueBase+MenuItemPreBlow,40);
 		write_memory(MenuItemValueBase+MenuItemPresparkTime,0);
 		write_memory(MenuItemValueBase+MenuItemPresparkI,CUR_MAX);
@@ -256,7 +258,8 @@ void setupPredefinedMode(int mode){
 		write_memory(MenuItemValueBase+MenuItemIBase+1,100);
 		write_memory(MenuItemValueBase+MenuItemIBase+2,100);
 		write_memory(MenuItemValueBase+MenuItemIBase+3,100);
-		write_memory(MenuItemValueBase+MenuItemF,MAX_F);
+		write_memory(MenuItemValueBase+MenuItemF,400);
+		write_memory(MenuItemValueBase+MenuItemT,600);
 		write_memory(MenuItemValueBase+MenuItemPreBlow,40);
 		write_memory(MenuItemValueBase+MenuItemPresparkTime,0);
 		write_memory(MenuItemValueBase+MenuItemPresparkI,CUR_MAX);
@@ -268,7 +271,8 @@ void setupPredefinedMode(int mode){
 		write_memory(MenuItemValueBase+MenuItemIBase+1,160);
 		write_memory(MenuItemValueBase+MenuItemIBase+2,160);
 		write_memory(MenuItemValueBase+MenuItemIBase+3,160);
-		write_memory(MenuItemValueBase+MenuItemF,MAX_F);
+		write_memory(MenuItemValueBase+MenuItemF,400);
+		write_memory(MenuItemValueBase+MenuItemT,600);
 		write_memory(MenuItemValueBase+MenuItemPreBlow,40);
 		write_memory(MenuItemValueBase+MenuItemPresparkTime,0);
 		write_memory(MenuItemValueBase+MenuItemPresparkI,CUR_MAX);
@@ -285,35 +289,100 @@ void keyPressWait(){
 		delay_ms(10);
 	}while(GetKeyPressed() != 0);
 }
-//extern adc_main();
-int menu();
-int main(void)
-{
-	int menu_item,i;
 
-	//adc_main();
+void calibrateHRTimer(){
+	int i;
+	while(1){
+		for(i = 0;i<25*60;i++){
+			resetHRTimer();
+			while(getHRTimerValue() < 0xFF00);
+		}
+		delay(1);
+	}
+}
+void checkDelay(){
+	while(1)
+		delay_ms(2000);
+}
+
+void systemInit(){
 	RCC_ClocksTypeDef RCC_ClockFreq;
 
 	SystemInit();
 
 	RCC_GetClocksFreq(&RCC_ClockFreq);
 
-	initHRTimer();
+	//initHRTimer();
 
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD, ENABLE);
+	//RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOE, ENABLE);
 
+	/* Enable ADCx clock so that we can talk to it */
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC2, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC3, ENABLE);
+
 
 	//RCC->APB1ENR |= RCC_APB1ENR_PWREN | RCC_APB1ENR_BKPEN;
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
 	/* Allow access to RTC */
-	PWR_BackupAccessCmd(ENABLE);
+	//PWR_BackupAccessCmd(ENABLE);
+
+	//GPIO_PinRemapConfig (GPIO_Remap_SWJ_JTAGDisable, ENABLE);
+	RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
+	AFIO->MAPR |= AFIO_MAPR_SWJ_CFG_JTAGDISABLE; // Disable JTAG
+}
+
+extern void testBooster();
+
+int isArgonFlow = 0;
+int menu();
+int main(void)
+{
+	unsigned int NoGasTickCounter = 0;
+	int GasPulsDelay = 0;
+	int menu_item,i,j;
+
+	//adc_main();
+	//RCC_ClocksTypeDef RCC_ClockFreq;
+
+	systemInit();
+
+	//RCC_GetClocksFreq(&RCC_ClockFreq);
+
+	initHRTimer();
+	//checkDelay();//------------------------------------------
+	//calibrateHRTimer();//------------------------------------
 
 	LCDInit(20);
+	LCDClear();
+
+	/*for(i = 0;i<16;i++){
+		LCDClear();
+		for(j = 0;j<16;j++){
+			LCDMoveTo(0,j);
+			LCDSymboxl((char)((i<<4)|j));
+		}
+		j = 0;
+		LCDMoveTo(2,2);
+		LCDPrintInt((char)((i<<4)|j));
+		j = 15;
+		LCDMoveTo(3,2);
+		LCDPrintInt((char)((i<<4)|j));
+
+		do{
+			delay_ms(10);
+		}while(GetKeyState() == 0);
+		delay_ms(300);
+		do{
+			delay_ms(10);
+		}while(GetKeyState() != 0);
+		delay_ms(300);
+	}//*/
+
 	run_init();
 	animation();
 
@@ -321,48 +390,17 @@ int main(void)
 	SpiSlaveInit();
 	initADC();
 
-	/*int pin;
-	for(pin = 0;pin<8;){
-		int mask = 1<<pin;
-		LCDClear();
-		LCDMoveTo(0,0);
-		LCDPrintInt(mask);
-		LCDPrintString(" pin ");
-		LCDPrintInt(pin);
-		while(1){
-			setRelay(mask);
-			delay_ms(500);
-			setRelay(0);
-			delay_ms(500);
-			if(GetKeyPressed() != 0){
-				while(GetKeyPressed() != 0)
-					;
-				pin ++;
-				break;
-			}
-		}
-	}//*/
+	testRel();//=====================================================
 	setRelayN(0x0);
 
-	//run_test_pins();
-
-	if(GetKeyPressed() != 0){
+	if(GetKeyState() != 0){
 		LCDClear();
 		LCDMoveTo(1,3);
 		LCDPrintString("Режим отладки");
-		while(GetKeyPressed() != 0)
+		while(GetKeyState() != 0)
 			MenuItemCount = MenuItemFullCountConst;
 		delay_ms(1000);
 	}
-
-	/*for(i = 0;i<PINCOUNT;i++){
-		setKeyState(i,1);
-		delay_ms(200);
-	}
-	for(i = 0;i<PINCOUNT;i++){
-		setKeyState(i,0);
-		delay_ms(200);
-	}//*/
 
 	LCDClear();
 	LCDMoveTo(1,3);
@@ -375,11 +413,11 @@ int main(void)
 		LCDMoveTo(3,9);
 		LCDPrintInt(ADCInput);
 		LCDPrintString("       ");
-	} while(ADCInput < U_NORMAL_ADC && GetKeyPressed() == 0);
+	} while(ADCInput < U_NORMAL_ADC && GetKeyState() == 0);
 
 	do{
 		delay_ms(10);
-	}while(GetKeyPressed() != 0);
+	}while(GetKeyState() != 0);
 
 	LCDClear();
 	LCDMoveTo(1,3);
@@ -390,54 +428,40 @@ int main(void)
 	for(i = 0;i<PINCOUNT;i++){
 		do{
 			LCDMoveTo(3,0);
-			LCDPrintString("Ждем закрытия клей");
+			LCDPrintString("Ждем закрытия               ");
 			//LCDPrintInt(i+1);
 			analogStart();
 			updateADC();
-		}while(ADCOut >= U_NORMAL_ADC && GetKeyPressed() == 0);
+		}while(ADCOut >= U_NORMAL_ADC && GetKeyState() == 0);
 		do{
 			delay_ms(10);
-		}while(GetKeyPressed() != 0);
+		}while(GetKeyState() != 0);
+
+		LCDMoveTo(3,0);
+		LCDPrintString("                            ");
+		LCDMoveTo(3,0);
+		LCDPrintString("Ключ #");
+		LCDPrintInt(i+1);
+
 		setKeyState(i,1);
-		delay_ms(50);
+		delay_ms(10);
 		analogStart();
 		updateADC();
 		if(ADCOut < U_NORMAL_ADC){
-			LCDMoveTo(3,0);
-			LCDPrintString("Ключ #");
-			LCDPrintInt(i+1);
-			LCDPrintString(" ОБРЫВ ");
+			LCDPrintString(" ОБРЫВ!!!!!");
 			LCDPrintInt(ADCOut);
 			LCDPrintString("       ");
-			while(GetKeyPressed() == 0);
-			do{
-				delay_ms(10);
-			}while(GetKeyPressed() != 0);
+			waitForKeyPress();
+		} else {
+			LCDPrintString(" - Ok");
+			delay_ms(200);
 		}
 		setKeyState(i,0);
+		if(MenuItemCount == MenuItemFullCountConst)
+			delay_ms(400);
 	}
 
-
-	/*for(i = 0;i<10;i++){
-		LCDClear();
-		LCDMoveTo(1,0);
-		LCDPrintString("Проверка PRECHARGE");
-		LCDPrintInt(10-i);
-		setPrecharge(1);
-		int prechargeTime = 0;
-#define PRECHARGE_TIMEOUT 5000
-		for(;prechargeTime < PRECHARGE_TIMEOUT && checkPrecharge() == 0;prechargeTime++)
-			delay_us(20);
-		setPrecharge(0);
-		LCDMoveTo(2,3);
-		if(prechargeTime == PRECHARGE_TIMEOUT){
-			LCDPrintString("No Precharge");
-			keyPressWait();
-		} else {
-			LCDPrintInt(20*prechargeTime);
-			LCDPrintString("us");
-		}
-	}//*/
+	//testBooster();//===============================================
 
 	for(i = 0;i<MenuItemCount;i++)
 		write_memory(MenuItemValueBase+i,MItems[i].DefaultValue);
@@ -446,17 +470,27 @@ int main(void)
 
     while(1)
     {
-    	if(menu_item == MenuItemCount-1)
-    	{
-    		/*int val = SpiMasterSend(0xAA);
-    		int received = SpiSlaveReply(0x55);
-    		LCDMoveTo(0,0);
-    		LCDPrintString("m:");LCDPrintInt(val);
-    		LCDPrintString("s:");LCDPrintInt(received);
-    		LCDPrintString("t:");LCDPrintInt(SysTickCounter);
-    		LCDPrintString("            ");*/
-    	}
     	menu_item = menu();
+    	if(read_memory(MenuItemSelector) == MenuItemCountConst-1)
+    	{
+#define REL_DELAY_SECOND 10000
+#define REL_DELAY REL_DELAY_SECOND*60*5
+    		if(IsGasOn != 0)
+    			NoGasTickCounter = 0;
+    		else{
+    			NoGasTickCounter ++;
+    			if(NoGasTickCounter > REL_DELAY)
+    			{
+    				setRelayN(REL_GAS_LOW);
+    				GasPulsDelay = REL_DELAY_SECOND*4;
+    			}
+    		}
+    		if(GasPulsDelay > 0){
+    			GasPulsDelay --;
+    			if(GasPulsDelay == 0)
+    				setRelayN(REL_NONE);
+    		}
+    	}
     }
 }
 
@@ -488,7 +522,42 @@ int isGeneratorOn()
 	return genOn;
 }
 
+int isCameraNotReady(){
+	if(getPin(GPIOA,GPIO_Pin_0))
+		return 1;
+	if(getPin(GPIOC,GPIO_Pin_15))
+		return 2;
+	return 0;
+}
+
+#define DEBUGP(c) {LCDMoveTo(3,15); LCDPutChar(c);}
+
 void mainCycle(int by_key){
+	float spark_time_s = 0.0006;
+	LCDLedStatus(1);
+	delay_ms(5);
+	int protection = getPin(GPIOD,GPIO_Pin_14);
+	if(protection != 0 && FLAG_NO_PROT_CHECK == 0){
+		LCDClear();
+		LCDMoveTo(1,0);
+		LCDPrintString("Защита");
+		LCDMoveTo(2,0);
+		LCDPrintString("Штатива");
+		Beep();
+		delay_ms(200);
+		LCDLedStatus(0);
+		return;
+	}
+	// ecxidental start protection...
+	if(!by_key){
+		int i;
+		for(i = 0;i<1000;i++){
+			if(GET_EXT_START == 1){
+				LCDLedStatus(0);
+				return;
+			}
+		}
+	}
 	if(read_memory(MenuItemSelector) != MenuItemCountConst-1){
 		LCDClear();
 		LCDMoveTo(1,3);
@@ -501,11 +570,11 @@ void mainCycle(int by_key){
 
 	initInputPin(GPIOA,GPIO_Pin_10);
 	initInputPin(GPIOD,GPIO_Pin_14);
-	int key = GetKeyPressed();
+	int key = GetKeyState();
 	int i;//,c_lim;
 	do{
 		delay_ms(100);
-		key = GetKeyPressed();
+		key = GetKeyState();
 	}while(key != 0);
 
 	NoSparkCount = 0;
@@ -516,6 +585,14 @@ void mainCycle(int by_key){
 	if(f == 0){
 		Beep();
 		LCDPrintString("Не задана частота");
+		delay_ms(1000);
+		return;
+	}
+
+	spark_time_s = read_memory(MenuItemValueBase+MenuItemT)*0.000001;
+	if(f == 0){
+		Beep();
+		LCDPrintString("Не задано время");
 		delay_ms(1000);
 		return;
 	}
@@ -555,9 +632,9 @@ void mainCycle(int by_key){
 	LCDPrintFInt(preBlow,1);LCDPrintString("сек.");
 	setRelayN(REL_ALL);
 	while(preBlow > 0){
-		delay_ms(46);
+		delay_ms(99);
 		preBlow -= 1;
-		key = GetKeyPressed();
+		key = GetKeyState();
 		if(key != 0){
 			setPrecharge(0);
 			LCDClear();
@@ -568,7 +645,7 @@ void mainCycle(int by_key){
 			setRelayN(REL_ALL);
 			delay_ms(400);
 			setRelayN(REL_NONE);
-			while(GetKeyPressed() != 0)
+			while(GetKeyState() != 0)
 				;
 			while(by_key == 0 && isGeneratorOn())
 				;
@@ -582,8 +659,8 @@ void mainCycle(int by_key){
 	prespark = read_memory(MenuItemValueBase+MenuItemPresparkTime);//*60;
 
 	LCDClear();
-	LCDMoveTo(2,3);
-	LCDPrintString("Р А З Р Я Д !");
+	LCDMoveTo(2,12);
+	LCDPrintString("РАЗРЯД!");
 
 	setPrecharge(1);
 	//int prev = getHRTimerValue();//SysTickCounter;
@@ -620,7 +697,7 @@ void mainCycle(int by_key){
 
 	LCDMoveTo(3,0);
 
-	int opened = getPin(GPIOA,GPIO_Pin_10);
+	int opened = isCameraNotReady();//getPin(GPIOA,GPIO_Pin_10);
 	if(opened != 0 && FLAG_NO_GAS_CHECK == 0){
 		opened = 1;
 		LCDClear();
@@ -630,9 +707,9 @@ void mainCycle(int by_key){
 	}
 	else{
 		opened = 0;
-
-		setRelayN(REL_GAS1 | REL_MAIN | REL_600V);
-		delay_ms(400);
+		//delay_ms(200);
+		setRelayN(REL_GAS_LOW | REL_MAIN | REL_600V);
+		delay_ms(200);
 	}
 
 	resetHRTimer();
@@ -640,24 +717,30 @@ void mainCycle(int by_key){
 	int count = 0;
 	int count_error = 0;
 	char exit_by_error = 0;
+	int no_spark = 0;
 	//for(c_lim = 0;c_lim < 1000;c_lim++){
 	//while(by_key == 1 || (by_key == 0 && GET_EXT_START == 0)){
 
 	int led_blink_counter = 0;
 	while(by_key == 1 || (by_key == 0 && isGeneratorOn())){
 		//checkPrecharge();
+		DEBUGP('S');
 		if(opened == 1){
-			key = GetKeyCode();
+			key = GetKeyState();
 			if(key != 0){
 				LCDClear();
 				LCDMoveTo(1,3);
 				LCDPrintString("СТОП");
-				while(GetKeyCode() != 0)
+				while(GetKeyState() != 0)
 					;
 				break;
 			}
 			continue;
 		}
+		DEBUGP('P');
+		if(getHRTimerValue() >= t_step*0.8)
+			setPrecharge(1);
+		DEBUGP('C');
 		if(getHRTimerValue() >= t_step){
 			int protection = getPin(GPIOD,GPIO_Pin_14);
 			if(protection != 0 && FLAG_NO_PROT_CHECK == 0){
@@ -675,8 +758,9 @@ void mainCycle(int by_key){
 #define SPARK_NO_CONTROL 50
 			//next = SysTickCounter + t_step;
 			int sparks;
+			DEBUGP('S');
 			if(prespark > 0){
-				sparks = spark(mla_presp,4,t_protection_zone);
+				sparks = spark(mla_presp,4,t_protection_zone,spark_time_s);
 				prespark --;
 				LCDMoveTo(3,0);
 				if(count%f == 0){
@@ -684,7 +768,7 @@ void mainCycle(int by_key){
 					LCDPrintInt(count/f);
 				}
 			} else {
-				sparks = spark(mla,mla_len,t_protection_zone);
+				sparks = spark(mla,mla_len,t_protection_zone,spark_time_s);
 				t_step = t_step_real;
 				LCDMoveTo(3,0);
 				if(count%f == 0){
@@ -692,6 +776,11 @@ void mainCycle(int by_key){
 					LCDPrintInt(count/f);
 				}
 			}
+			DEBUGP('E');
+			if(sparks <= 0)
+				no_spark ++;
+			LCDMoveTo(2,0);
+			LCDPrintInt(no_spark);
 			int spark_time = getHRTimerValue();
 			if((sparks < 1 || spark_time > t_step)
 					&& count > SPARK_NO_CONTROL && FLAG_NO_SPARK_CHECK == 0){
@@ -716,32 +805,28 @@ void mainCycle(int by_key){
 					Beep();
 					setPrecharge(0);
 					exit_by_error = 1;
-					while(GetKeyCode() == 0)
-						;
-					delay_ms(300);
-					while(GetKeyCode() != 0)
-						;
+					waitForKeyPress();
 					break;
 				} else {
 					if(count > SPARK_NO_CONTROL)
 						error_count +=10;
 				}
-				setPrecharge(1);
+				//setPrecharge(1);
 			}
 			else
 			{
-				setPrecharge(1);
+				//setPrecharge(1);
 				led_blink_counter ++;
 				if(led_blink_counter & 128)
 					LCDLedStatus(1);
 				else
 					LCDLedStatus(0);
 				count ++;
-				key = GetKeyCode();
+				key = GetKeyState();
 				if(key != 0){
 					LCDPrintString("СТОП");
-					while(GetKeyCode() != 0)
-						;
+					while(GetKeyState() != 0)
+						delay_ms(10);
 					break;
 				}
 				error_count /= 2;
@@ -749,7 +834,9 @@ void mainCycle(int by_key){
 			spark_count ++;
 			delay_us(50);
 		}
+		DEBUGP('!');
 	}
+	LCDLedStatus(0);
 	sparkForDischarge();
 	setRelayN(REL_NONE);
 	setPrecharge(0);
@@ -769,10 +856,10 @@ void mainCycle(int by_key){
 	LCDMoveTo(1,1);
 	LCDPrintFInt(count_error*10000/count,2);
 	LCDPrintString("%");
-	delay_ms(1000);
+	delay_ms(5000);
 }
 
-char FLAG_NO_GAS_CHECK = 0;
+char FLAG_NO_GAS_CHECK = NO_GAS_CHECK_DEFULT;
 char FLAG_NO_SPARK_CHECK = 0;
 char FLAG_NO_PROT_CHECK = 0;
 void menuFunctions(int function, int dir){
@@ -801,19 +888,20 @@ void menuFunctions(int function, int dir){
 }
 
 char IsFirstTime = 1;
-int isArgonFlow = 0;
 int menu(){
 	int menu_item_index = read_memory(MenuItemSelector);
 	int loop_menu_item;
 	int val = read_memory(MenuItemValueBase+menu_item_index);
 	int key;
 
+	LCDLedStatus(0);
+
 	if(GET_EXT_START == 0){
 		mainCycle(0);
 		key = 0xFFFF;
 	}
 	else
-		key = GetKeyCode();
+		key = GetKeyPressed();
 
 	switch(key){
 	case 1:
@@ -855,6 +943,8 @@ int menu(){
 		write_memory(MenuItemValueBase+menu_item_index,val);
 		break;
 	case 32:
+		while(GetKeyState() != 0)
+			delay_ms(10);
 		menuFunctions(MItems[menu_item_index].Function,1);
 		if(MItems[menu_item_index].DecimalNumber < 0){
 			if(MItems[menu_item_index].Min >= 0)
@@ -888,24 +978,29 @@ int menu(){
 		}*/
 		//setRelay(128+64);
 		if(isArgonFlow == 0){
-			setRelayN(REL_GAS1 | REL_GAS2);
+			setRelayN(REL_GAS_MAX);
 			delay_ms(500);
 			initInputPin(GPIOA,GPIO_Pin_10);
 			int opened = 0;
 			int cycled = 0;
-			while(GetKeyPressed() != 0){
+			while(GetKeyState() != 0){
 				delay_ms(100);
 				cycled ++;
-				if(getPin(GPIOA,GPIO_Pin_10) != 0)
-					opened = 1;
-				if(opened != 0){
+				opened = isCameraNotReady();
+				if(opened == 1){
 					LCDClear();
-					LCDMoveTo(1,3);
-					LCDPrintString("ОТКРЫТ ШТАТИВ!!!");
+					LCDMoveTo(1,0);
+					LCDPrintString("ШТАТИВ НЕ ГЕРМЕТИЧЕН!!!");
 				} else {
-					LCDClear();
-					LCDMoveTo(1,1);
-					LCDPrintString("Штатив герметичен");
+					if(opened == 2){
+						LCDClear();
+						LCDMoveTo(1,3);
+						LCDPrintString("ЗАЩИТА ШТАТИВА!!!");
+					} else {
+						LCDClear();
+						LCDMoveTo(1,1);
+						LCDPrintString("Штатив готов");
+					}
 				}
 				if(cycled > 50){
 					LCDMoveTo(2,5);
@@ -916,17 +1011,17 @@ int menu(){
 			if(isArgonFlow == 0){
 				setRelayN(REL_NONE);
 				delay_ms(200);
-				setRelayN(REL_GAS1 | REL_GAS2);
+				setRelayN(REL_GAS_MAX);
 				delay_ms(200);
 				setRelayN(REL_NONE);
 			}
 		} else {
 			setRelayN(REL_NONE);
 			delay_ms(200);
-			setRelayN(REL_ALL);
+			setRelayN(REL_GAS_MAX);
 			delay_ms(200);
 			setRelayN(REL_NONE);
-			while(GetKeyPressed() != 0)
+			while(GetKeyState() != 0)
 					delay_ms(100);
 			isArgonFlow = 0;
 		}

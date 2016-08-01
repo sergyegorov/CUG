@@ -1,7 +1,7 @@
 #ifndef spi_h
 #define spi_h
 
-#include "stm32f4xx.h"
+#include "stm32f10x.h"
 
 #define GET_EXT_START getPin(GPIOB,GPIO_Pin_12)
 

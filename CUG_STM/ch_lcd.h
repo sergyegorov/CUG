@@ -17,8 +17,12 @@ extern void LCDPutCharNoWait(char data);
 
 extern void LCDLedStatus(char on);
 
-extern int GetKeyCode();
+extern int waitForKeyPress();
+extern int GetKeyState();
 extern int GetKeyPressed();
+#define WAIT_FOR_NO_KEY while(GetKeyState() != 0) delay_ms(10);
+
+extern void LCDSymboxl(char data);
 
 extern void Beep();
 
