@@ -293,7 +293,8 @@ int spark(int cur_mla[],int len,int time_out_sys_ticks_val,float spark_time_s){
 	int i_from = ADCCur;
 
 	//int ign_pin = 5;
-	setCurrent(cur_mla[0]);//setCurrent(CUR_MAX);//cur_mla[0]);
+	setCurrent(cur_mla[0]);
+	//setCurrent(CUR_MAX);
 	analogStart();
 	updateADC();
 	if(ADCOut < U_NORMAL_ADC && ADCInput > U_NORMAL_ADC){
@@ -313,7 +314,7 @@ int spark(int cur_mla[],int len,int time_out_sys_ticks_val,float spark_time_s){
 	int ign_tick;
 	analogStart();
 	//GATE_ALL_ON;
-	for(ign_tick = 0;ign_tick < 2;ign_tick ++)
+	for(ign_tick = 0;ign_tick < 1;ign_tick ++)
 	{
 		updateADC();
 		if(ADCCur > i_target)

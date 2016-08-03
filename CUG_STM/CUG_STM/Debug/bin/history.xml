@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <history>
    <processor signature="4.9.3 -mcpu=cortex-m3 -mthumb -g -Map=CUG_STM.map -O0 --gc-sections -lstdc++ -LC:\CooCox\CoIDE\configuration\ProgramData\CUG_STM -TC:\CooCox\CoIDE\configuration\ProgramData\CUG_STM/arm-gcc-link.ld -g -L..\..\.. -ldelaylib">
-      <target file="CUG_STM.elf" lastModified="15645839a8d">
+      <target file="CUG_STM.elf" lastModified="156507da3c5">
          <source file="..\obj\stm32f10x_rtc.o" lastModified="1562c73ab44"/>
-         <source file="..\obj\spi.o" lastModified="1562c73abae"/>
+         <source file="..\obj\spi.o" lastModified="156469d9efb"/>
          <source file="..\obj\stm32f10x_tim.o" lastModified="1562c73acfa"/>
          <source file="..\obj\system_stm32f10x.o" lastModified="1562c73ad71"/>
          <source file="..\obj\startup_stm32f10x_hd.o" lastModified="1562c73ade9"/>
@@ -11,15 +11,15 @@
          <source file="..\obj\stm_port.o" lastModified="1562c73aecb"/>
          <source file="..\obj\stm32f10x_pwr.o" lastModified="1562c73af84"/>
          <source file="..\obj\stm32f10x_gpio.o" lastModified="1562c73b01b"/>
-         <source file="..\obj\main.o" lastModified="156458397e5"/>
-         <source file="..\obj\rel.o" lastModified="15645839871"/>
+         <source file="..\obj\main.o" lastModified="156507da091"/>
+         <source file="..\obj\rel.o" lastModified="156505617b3"/>
          <source file="..\obj\stm32f10x_rcc.o" lastModified="1562c73b192"/>
          <source file="..\obj\stm32f10x_adc.o" lastModified="1562c73b24d"/>
          <source file="..\obj\time.o" lastModified="1562c73b2e9"/>
          <source file="..\obj\syscalls.o" lastModified="1562c73b3c8"/>
          <source file="..\obj\adc.o" lastModified="1562c73b445"/>
          <source file="..\obj\ch_lcd.o" lastModified="1562c73b504"/>
-         <source file="..\obj\run.o" lastModified="15630f31e7a"/>
+         <source file="..\obj\run.o" lastModified="156507da19f"/>
          <source file="..\obj\stm32f10x_spi.o" lastModified="1562c73b6f3"/>
       </target>
    </processor>

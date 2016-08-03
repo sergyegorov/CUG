@@ -3,8 +3,8 @@
 
 extern char IsGasOn;
 
-#define ARUTIUN
-//#define SLAVIANSK
+//#define ARUTIUN
+#define SLAVIANSK
 
 #ifdef ARUTIUN
 #ifdef REL_GAS_LOW

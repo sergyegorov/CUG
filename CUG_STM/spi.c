@@ -30,7 +30,14 @@ void SpiMasterInit(){
 }
 
 void SpiSlaveInit(){
-/*	GPIO_InitTypeDef GPIO_InitStructure;
+	GPIO_InitTypeDef  GPIO_InitStructure;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	//GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	GPIO_Init(GPIOC, &GPIO_InitStructure);
+
+	/*	GPIO_InitTypeDef GPIO_InitStructure;
 
 	// Поскольку сигнал NSS контролируется программно, установим его в единицу
 	// Если сбросить его в ноль, то наш SPI модуль подумает, что

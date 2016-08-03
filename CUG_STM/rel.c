@@ -12,6 +12,8 @@
 //unsigned long RelTickCount = 0;
 char IsGasOn = 0;
 
+unsigned int NoGasTickCounter = 0;
+
 #define REL_WAIT(times) delay_ms(200*times)
 //#define MSB_FIRST
 int relInited = 0;
@@ -23,9 +25,10 @@ void setRelayN(int val){
 	//	RelTickCount = 0;
 
 	//prevVal = val;
-	if((val & REL_GAS_MASK) != 0)
+	if((val & REL_GAS_MASK) != 0){
 		IsGasOn = 1;
-	else
+		NoGasTickCounter = 0;
+	}else
 		IsGasOn = 0;
 
 	if(relInited == 0){

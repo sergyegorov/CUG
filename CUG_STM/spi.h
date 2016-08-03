@@ -3,6 +3,9 @@
 
 #include "stm32f10x.h"
 
+#define SPIINT_ON GPIO_SetBits(GPIOC,GPIO_Pin_6)
+#define SPIINT_OFF GPIO_ReSetBits(GPIOC,GPIO_Pin_6)
+
 #define GET_EXT_START getPin(GPIOB,GPIO_Pin_12)
 
 extern void SpiMasterInit();

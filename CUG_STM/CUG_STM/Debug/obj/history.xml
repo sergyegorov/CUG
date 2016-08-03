@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <history>
    <processor signature="arm-none-eabi-gcc noversion nomachine -mcpu=cortex-m3 -mthumb -Wall -ffunction-sections -g -O0 -c -DSTM32F103RC -DSTM32F10X_HD -DUSE_STDPERIPH_DRIVER -D__ASSEMBLY__ -DSUPPORT_CPLUSPLUS -ID:\NetDisks\G\Work\CUG\Slaviansk\CUG_STM\cmsis -ID:\NetDisks\G\Work\CUG\Slaviansk\CUG_STM\stm_lib -ID:\NetDisks\G\Work\CUG\Slaviansk\CUG_STM\cmsis_boot -ID:\NetDisks\G\Work\CUG -ID:\NetDisks\G\Work\CUG\Slaviansk\CUG_STM\stm_lib\inc -ID:\NetDisks\G\Work\CUG\Slaviansk -ID:\NetDisks\G\Work\CUG\Slaviansk\CUG_STM">
-      <target file="spi.o" lastModified="1562c73abae">
-         <source file="..\..\..\spi.c" lastModified="15241b7a126"/>
+      <target file="spi.o" lastModified="156469d9efb">
+         <source file="..\..\..\spi.c" lastModified="156469d91b1"/>
       </target>
       <target file="stm32f10x_spi.o" lastModified="1562c73b6f3">
          <source file="..\..\..\stm_lib\src\stm32f10x_spi.c" lastModified="152418e6780"/>
@@ -22,8 +22,8 @@
       <target file="ch_lcd.o" lastModified="1562c73b504">
          <source file="..\..\..\ch_lcd.c" lastModified="156275d1ff3"/>
       </target>
-      <target file="rel.o" lastModified="15645839871">
-         <source file="..\..\..\rel.c" lastModified="156457e5110"/>
+      <target file="rel.o" lastModified="156505617b3">
+         <source file="..\..\..\rel.c" lastModified="1564ba99817"/>
       </target>
       <target file="time.o" lastModified="1562c73b2e9">
          <source file="..\..\..\time.c" lastModified="15242086467"/>
@@ -52,11 +52,11 @@
       <target file="stm32f10x_adc.o" lastModified="1562c73b24d">
          <source file="..\..\..\stm_lib\src\stm32f10x_adc.c" lastModified="152418e9372"/>
       </target>
-      <target file="run.o" lastModified="15630f31e7a">
-         <source file="..\..\..\run.c" lastModified="15630f302b1"/>
+      <target file="run.o" lastModified="156507da19f">
+         <source file="..\..\..\run.c" lastModified="1565077efd1"/>
       </target>
-      <target file="main.o" lastModified="156458397e5">
-         <source file="..\..\..\main.c" lastModified="15644d2b32f"/>
+      <target file="main.o" lastModified="156507da091">
+         <source file="..\..\..\main.c" lastModified="156507d953c"/>
       </target>
    </processor>
 </history>
